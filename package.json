@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/zhuicode99/smallapp/issues"
   },
-  "homepage": "https://github.com/zhuicode99/smallapp#readme"
+  "homepage": "https://github.com/zhuicode99/smallapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
