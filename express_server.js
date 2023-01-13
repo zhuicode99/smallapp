@@ -45,9 +45,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`)
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
-//所以会post（create）到/urls页面，这个end point就是完成post到/url的操作，
+//所以会post（create）把数据送到/urls页面，这个end point就是完成post到/url的操作，
 //用function生成的shortid，添加到urldatabase，然后完成post到/url界面这个action以后直接跳转
 //跳转到/urls/：id 界面，而不是停留在/url界面。但是数据更新在了/url界面。
+//下面的更准确，上面的待证实
+//action的url要跟app。post上的url一致。
+// 就算action上的url是abc，只要app.post上也是abc，就还是能完成更新
+//因为通过function把database更新了，就是会显示到/urls。
 //new
 
 app.get("/urls/:id",(req, res) => {
@@ -70,6 +74,16 @@ app.get("/u/:id", (req, res) => {
 
 
 
+//delete
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id]
+  res.redirect("/urls")
+});
+//从 /urls 页面 （urls—index。ejs）点击 delete（del在form里） 
+//来trigger post action，action的url要跟app。post上的url一致。
+// 完成delete 以后redirect到/urls页面。
+//因为没有数据要传输，所以跟上边的例子不一样
 
 
 
