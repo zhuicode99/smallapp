@@ -40,11 +40,9 @@ app.get("/urls/new",(req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
   let id = generateRandomString();
-  console.log("hereid",id)
   urlDatabase[id] = req.body['longURL'];
+  res.redirect(`/urls/${id}`)
 });
 //new
 
