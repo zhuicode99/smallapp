@@ -45,9 +45,9 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`)
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
-//所以会post（create）把数据送到/urls页面，这个end point就是完成post到/url的操作，
-//用function生成的shortid，添加到urldatabase，然后完成post到/url界面这个action以后直接跳转
-//跳转到/urls/：id 界面，而不是停留在/url界面。但是数据更新在了/url界面。
+//所以会post（create）把数据送到/urls页面，在这个end point来action，
+//action：“用function生成的shortid，添加到urldatabase，然后完成post到/url界面这个action以后直接跳转
+//跳转到/urls/：id 界面，而不是停留在/url界面。但是数据更新在了/url界面。”
 //下面的更准确，上面的待证实
 //action的url要跟app。post上的url一致。
 // 就算action上的url是abc，只要app.post上也是abc，就还是能完成更新
@@ -59,6 +59,11 @@ app.get("/urls/:id",(req, res) => {
   res.render("urls_show", templateVars); 
 })//like /urls/b2xVn2 in the browser. 
 //Further, the value of req.params.id would be b2xVn2.
+app.post("/urls/:id", (req, res) => {
+  let id = req.params.id
+  urlDatabase[id] = req.body['longURL'];
+  res.redirect("/urls")
+})
 
 //use shortID link to redirect to longID link
 app.get("/u/:id", (req, res) => {
@@ -85,8 +90,12 @@ app.post("/urls/:id/delete", (req, res) => {
 // 完成delete 以后redirect到/urls页面。
 //因为没有数据要传输，所以跟上边的例子不一样
 
+//edit
+app.post("/urls/:id/edit", (req, res) => {
+  let id = req.params.id
 
-
+  res.redirect(`/urls/${id}`)
+})
 
 
 
