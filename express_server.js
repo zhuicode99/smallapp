@@ -2,13 +2,13 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 
 app.set("view engine", "ejs") // set the structure 
 
 
 app.use(express.urlencoded({ extended: true })); //body parser for post requst
-
+app.use(cookieParser());
 
 const generateRandomString = () => {
   let randomStr = "";
@@ -29,14 +29,18 @@ app.get("/urls.json",(req, res) => {
 
 app.get("/urls",(req, res) => {
   const templateVars = {
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies.username
   }
   res.render("urls_index", templateVars); 
 });
 
 //new
 app.get("/urls/new",(req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies.username
+  }
+  res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -55,7 +59,11 @@ app.post("/urls", (req, res) => {
 //new
 
 app.get("/urls/:id",(req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies.username
+  };
   res.render("urls_show", templateVars); 
 })//like /urls/b2xVn2 in the browser. 
 //Further, the value of req.params.id would be b2xVn2.
@@ -98,7 +106,11 @@ app.post("/urls/:id/edit", (req, res) => {
 })
 
 
-
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username); // pass input to cookie(username:input)
+  //res means set, req means get.
+  res.redirect('/urls')
+})
 
 
 
