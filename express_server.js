@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-
+var cookieParser = require('cookie-parser')
 
 app.set("view engine", "ejs") // set the structure 
 
