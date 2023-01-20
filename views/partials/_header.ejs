@@ -18,6 +18,10 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <!-- 先从cookie里提取登陆的id信息，
+      从数据库里用cookie的id信息来提取这个客户的其他信息，比如密码和email 
+    如果登陆成功才能提取cookie信息，然后显示到页面
+    -->
     <% if (username) { %>
       <p>
         <form class="form-inline" action="/logout" method="POST"  >

@@ -31,6 +31,17 @@ const users = {
   }
 };
 
+//return username by given email.
+const getUserByEmail = (email) => {
+  let userId = "";
+  for (let user in users) {
+    if (users[user]['email'] === email) {
+      userId = user;
+    }
+  }
+  return userId;
+}
+
 app.get("/urls.json",(req, res) => {
    res.json(urlDatabase);
 });
@@ -123,19 +134,22 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  
   let email = req.body.email;
+  let id = getUserByEmail(email);
   let password = req.body.password;
   if (!email||!password) {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
   }
 
-   if(!users[getUserByEmail(email)]) {
+   if(users[id].password !== password) {
       return res.status(400).send(`${email} not registered`)
+    } else {
+      res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
+      //或者直接传id object到cookie也行， 但是其他get端要改成直接提取cookie信息就行。
+    res.redirect("/urls")
   }
+
  
-  
-  res.redirect("/urls")
 });
 
 app.post("/logout", (req, res) => {
@@ -154,16 +168,7 @@ app.get("/register", (req, res) => {
 });
 
 
-//return username by given email.
-const getUserByEmail = (email) => {
-  let userId = "";
-  for (let user in users) {
-    if (users[user]['email'] === email) {
-      userId = user;
-    }
-  }
-  return userId;
-}
+
 
 app.post("/register", (req, res) => {
   let id = generateRandomString();
@@ -184,8 +189,8 @@ app.post("/register", (req, res) => {
   }
 
   console.log("users",users)
-  res.cookie("user_id", id)
-  res.redirect("/urls")
+/*   res.cookie("user_id", id) */
+  res.redirect("/login")
 });
 
 
