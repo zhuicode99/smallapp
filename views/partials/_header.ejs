@@ -21,7 +21,7 @@
     <% if (username) { %>
       <p>
         <form class="form-inline" action="/logout" method="POST"  >
-          <label for="login-info">Logged in as: <%= username %>!</label>
+          <label for="login-info">Logged in as: <%= username.email %>!</label>
           <button type="submit" class="btn btn-outline-dark">Logout</button>
         </form>
       </p>
