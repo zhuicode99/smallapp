@@ -105,7 +105,7 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect(`/urls/${id}`)
 })
 
-
+//login
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username); // pass input to cookie(username:input)
   //res means set, req means get.
@@ -117,7 +117,20 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls')
 })
 
+//logout
 
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies.username
+  }
+  res.render("urls_register", templateVars)
+});
+
+app.post("/register", (req, res) => {
+
+  res.redirect("/urls")
+});
 
 
 app.listen(PORT, () => {
