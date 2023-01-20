@@ -136,12 +136,34 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars)
 });
 
+
+//return username by given email.
+const getUserByEmail = (email) => {
+  let userId = "";
+  for (let user in users) {
+    if (users[user]['email'] === email) {
+      userId = user;
+    }
+  }
+  return userId;
+}
+
 app.post("/register", (req, res) => {
   let id = generateRandomString();
+  let email = req.body.email;
+  let password = req.body.password;
+  if (!email||!password) {
+    return res.status(400).send('Sorry! Your entry is either empty or invalid.')
+  }
+
+   if(users[getUserByEmail(email)]) {
+      return res.status(400).send(`${email} already registered`)
+  }
+
   users[id] = {
     id: id,
-    email: req.body.email,
-    password: req.body.password,
+    email: email,
+    password: password,
   }
 
   console.log("users",users)
