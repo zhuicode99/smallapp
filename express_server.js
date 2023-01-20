@@ -37,6 +37,8 @@ const getUserByEmail = (email) => {
   for (let user in users) {
     if (users[user]['email'] === email) {
       userId = user;
+    } else {
+      userId = "wrong";
     }
   }
   return userId;
@@ -140,9 +142,11 @@ app.post("/login", (req, res) => {
   if (!email||!password) {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
   }
-
-   if(users[id].password !== password) {
-      return res.status(400).send(`${email} not registered`)
+/* if(){
+  return res.status(400).send("either email or password not correct")
+} */
+   if(id === 'wrong'||users[id].password !== password) {
+      return res.status(400).send("either email or password not correct")
     } else {
       res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
       //或者直接传id object到cookie也行， 但是其他get端要改成直接提取cookie信息就行。
