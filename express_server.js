@@ -115,11 +115,28 @@ app.post("/urls/:id/edit", (req, res) => {
 })
 
 //login
-app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.user_id); // pass input to cookie(username:input)
-  //res means set, req means get.
-  res.redirect('/urls')
+app.get("/login", (req, res) => {
+  const templateVars = {
+    username: users[req.cookies.user_id]
+  }
+  res.render('urls_login', templateVars)
 })
+
+app.post("/login", (req, res) => {
+  
+  let email = req.body.email;
+  let password = req.body.password;
+  if (!email||!password) {
+    return res.status(400).send('Sorry! Your entry is either empty or invalid.')
+  }
+
+   if(!users[getUserByEmail(email)]) {
+      return res.status(400).send(`${email} not registered`)
+  }
+ 
+  
+  res.redirect("/urls")
+});
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id"); // clear cookie
@@ -170,6 +187,18 @@ app.post("/register", (req, res) => {
   res.cookie("user_id", id)
   res.redirect("/urls")
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.listen(PORT, () => {
