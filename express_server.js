@@ -28,12 +28,7 @@ const users = {
     id: "userRandomID",
     email: "user@example.com",
     password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
+  }
 };
 
 app.get("/urls.json",(req, res) => {
@@ -143,11 +138,13 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let id = generateRandomString();
-  users[id] = id;
-  let email = req.body.email;
-  users[id][email] = email;
-  let password = req.body.password;
-  users[id][password] = password;
+  users[id] = {
+    id: id,
+    email: req.body.email,
+    password: req.body.password,
+  }
+
+  console.log("users",users)
   res.cookie("user_id", id)
   res.redirect("/urls")
 });
