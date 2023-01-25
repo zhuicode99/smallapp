@@ -70,8 +70,16 @@ app.get("/urls/new",(req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  let id = generateRandomString();
-  urlDatabase[id] = req.body['longURL'];
+  
+  if (!req.cookies.user_id){
+    res.status(401).send('<h1><center>Please login to use ShortURL!</center></h1>');
+  } //如果没有这条code，别人可以用
+  //（curl -X POST -d "longURL=http://www.lighthouselabs.com" localhost:8080/urls）
+  //来直接添加新的short url = lighthouselabs.com， without log in。
+
+
+    let id = generateRandomString();
+    urlDatabase[id] = req.body['longURL'];
   res.redirect(`/urls/${id}`)
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
