@@ -62,7 +62,11 @@ app.get("/urls/new",(req, res) => {
   const templateVars = {
     username: users[req.cookies.user_id]
   }
+  if (!req.cookies.user_id){
+    res.redirect("/login")
+  } else {
   res.render("urls_new", templateVars);
+  }
 });
 
 app.post("/urls", (req, res) => {
