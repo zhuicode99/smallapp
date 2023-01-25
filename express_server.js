@@ -132,7 +132,11 @@ app.get("/login", (req, res) => {
   const templateVars = {
     username: users[req.cookies.user_id]
   }
-  res.render('urls_login', templateVars)
+  if (req.cookies.user_id){
+    res.redirect("/urls")
+  } else {
+    res.render('urls_login', templateVars)
+  }
 })
 
 app.post("/login", (req, res) => {
@@ -165,10 +169,16 @@ app.post("/logout", (req, res) => {
 
 
 app.get("/register", (req, res) => {
+  
   const templateVars = {
     username: users[req.cookies.user_id]
   }
-  res.render("urls_register", templateVars)
+  if (req.cookies.user_id){
+    res.redirect('/urls')
+    /* res.render("urls_register", templateVars) */
+  } else {
+    res.render("urls_register", templateVars)
+  }
 });
 
 
