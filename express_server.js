@@ -109,7 +109,11 @@ app.post("/urls/:id", (req, res) => {
 
 //use shortID link to redirect to longID link
 app.get("/u/:id", (req, res) => {
+  
   const longURL = urlDatabase[req.params.id];
+  if(!longURL) {
+    return res.status(400).send('<h1>ID does not exist</h1>')
+  }
   let http = 'http://';
   if(longURL.includes(http)) {
     res.redirect(`${longURL}`);
