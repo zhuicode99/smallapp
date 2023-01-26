@@ -49,7 +49,12 @@ app.get("/urls",(req, res) => {
     urls: urlDatabase,
     username: users[req.cookies.user_id]
   }
-  res.render("urls_index", templateVars); 
+  if (!req.cookies.user_id) {
+    res.send("Please log in first <a href='/login'>Try Login!</a>");
+  } else {
+
+    res.render("urls_index", templateVars); 
+  }
 });
 
 //new
@@ -164,7 +169,8 @@ app.post("/login", (req, res) => {
   return res.status(400).send("either email or password not correct")
 } */
 if(!users[id]) {
-  return res.status(400).send("not registered yet")
+  return res.status(400).send("not registered yet <a href='/register'>Pls register first!</a>")
+  
 }
    if(id === 'doNotExist'||users[id].password!== password) {
       return res.status(400).send("either email or password not correct")
