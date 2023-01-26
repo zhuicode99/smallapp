@@ -17,24 +17,28 @@ const generateRandomString = () => {
   return randomStr;
 };
 
-const urlDatabase = {
+const urlDatabase = {};
+const users = {};
 
-};
-
-
-const users = {
- 
-};
+const urlsForUser = (id) => {
+  const newUrlDatabase = {};
+  const keys = Object.keys(urlDatabase);
+  for (let key of keys) {
+    const urls = urlDatabase[key]
+    if (urls.userID === id){
+      newUrlDatabase[key] = urls
+    } 
+  }
+  return newUrlDatabase;
+}
 
 //return username by given email.
 const getUserByEmail = (email) => {
   let userId = "";
   for (let user in users) {
-    if (users[user]['email'] === email) {
+    if (users[user].email === email) {
       userId = user;
-    } else {
-      userId = "doNotExist";
-    }
+    } 
   }
   return userId;
 }
@@ -45,14 +49,16 @@ app.get("/urls.json",(req, res) => {
 
 
 app.get("/urls",(req, res) => {
+  const id = req.cookies.user_id
+  let urls = urlsForUser(id)
   const templateVars = {
-    urls: urlDatabase,
-    username: users[req.cookies.user_id]
+    urls: urls,
+    username: users[id]
   }
-  if (!req.cookies.user_id) {
+  console.log("newurldatabaseforeachuser",urls)
+  if (!id) {
     res.send("Please log in first <a href='/login'>Try Login!</a>");
   } else {
-
     res.render("urls_index", templateVars); 
   }
 });
@@ -82,7 +88,7 @@ app.post("/urls", (req, res) => {
       longURL : req.body['longURL'],
       userID : req.cookies.user_id
     }
-    console.log('check',urlDatabase)
+    console.log('urldatabase',urlDatabase)
   res.redirect(`/urls/${id}`)
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
@@ -162,17 +168,12 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let id = getUserByEmail(email);
   let password = req.body.password;
-  if (!email||!password) {
+ /*  if (!email||!password) {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
-  }
-/* if(){
-  return res.status(400).send("either email or password not correct")
-} */
-if(!users[id]) {
-  return res.status(400).send("not registered yet <a href='/register'>Pls register first!</a>")
-  
-}
-   if(id === 'doNotExist'||users[id].password!== password) {
+  } */
+  console.log('email id password',email,id,password)
+
+   if(!users[id]||users[id].password!== password) {
       return res.status(400).send("either email or password not correct")
     } else {
       res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
