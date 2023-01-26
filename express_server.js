@@ -17,18 +17,13 @@ const generateRandomString = () => {
   return randomStr;
 };
 
-const urlDatabase = { //temp database
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+const urlDatabase = {
+
 };
 
 
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  }
+ 
 };
 
 //return username by given email.
@@ -77,9 +72,12 @@ app.post("/urls", (req, res) => {
   //（curl -X POST -d "longURL=http://www.lighthouselabs.com" localhost:8080/urls）
   //来直接添加新的short url = lighthouselabs.com， without log in。
 
-
     let id = generateRandomString();
-    urlDatabase[id] = req.body['longURL'];
+    urlDatabase[id] = {
+      longURL : req.body['longURL'],
+      userID : req.cookies.user_id
+    }
+    console.log('check',urlDatabase)
   res.redirect(`/urls/${id}`)
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
@@ -95,7 +93,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id",(req, res) => {
   const templateVars = { 
     id: req.params.id, 
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id]['longURL'],
     username: users[req.cookies.user_id]
   };
   res.render("urls_show", templateVars); 
@@ -103,14 +101,14 @@ app.get("/urls/:id",(req, res) => {
 //Further, the value of req.params.id would be b2xVn2.
 app.post("/urls/:id", (req, res) => {
   let id = req.params.id
-  urlDatabase[id] = req.body['longURL'];
+  urlDatabase[id]['longURL'] = req.body['longURL'];
   res.redirect("/urls")
 })
 
 //use shortID link to redirect to longID link
 app.get("/u/:id", (req, res) => {
   
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id]['longURL'];
   if(!longURL) {
     return res.status(400).send('<h1>ID does not exist</h1>')
   }
