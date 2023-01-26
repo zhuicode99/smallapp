@@ -102,6 +102,11 @@ app.post("/urls", (req, res) => {
 //new
 
 app.get("/urls/:id",(req, res) => {
+  let id = req.cookies.user_id;
+ /*  let urls = urlsForUser(id); */
+  if (!id) {
+    return  res.send('<h1>please log in first </h1>')
+  }
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id]['longURL'],
