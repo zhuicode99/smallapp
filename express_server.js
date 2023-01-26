@@ -105,6 +105,9 @@ app.get("/urls/:id",(req, res) => {
   let userId = req.cookies.user_id;
   let id = req.params.id;
   let urls = urlsForUser(userId);
+  if (!userId && !urlDatabase[id]) {
+    return res.send('<h1>no such id </h1>')
+  }
   if (!userId) {
     return  res.send('<h1>please log in first </h1>')
   }
@@ -145,7 +148,15 @@ app.get("/u/:id", (req, res) => {
 
 //delete
 app.post("/urls/:id/delete", (req, res) => {
+
   const id = req.params.id;
+  let userId = req.cookies.user_id
+  let urls = urlsForUser(userId)
+  
+  if (!urls[id]) {
+    return res.send('<h1>cannot delete other ppl url</h1>')
+  } 
+
   delete urlDatabase[id]
   res.redirect("/urls")
 });
@@ -157,7 +168,12 @@ app.post("/urls/:id/delete", (req, res) => {
 //edit
 app.post("/urls/:id/edit", (req, res) => {
   let id = req.params.id
-
+  let userId = req.cookies.user_id
+  let urls = urlsForUser(userId)
+  
+  if (!urls[id]) {
+    return res.send('<h1>cannot edit other ppl url</h1>')
+  } 
   res.redirect(`/urls/${id}`)
 })
 
