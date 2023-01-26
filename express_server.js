@@ -33,7 +33,7 @@ const getUserByEmail = (email) => {
     if (users[user]['email'] === email) {
       userId = user;
     } else {
-      userId = "wrong";
+      userId = "doNotExist";
     }
   }
   return userId;
@@ -163,7 +163,10 @@ app.post("/login", (req, res) => {
 /* if(){
   return res.status(400).send("either email or password not correct")
 } */
-   if(id === 'wrong'||users[id].password !== password) {
+if(!users[id]) {
+  return res.status(400).send("not registered yet")
+}
+   if(id === 'doNotExist'||users[id].password!== password) {
       return res.status(400).send("either email or password not correct")
     } else {
       res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
