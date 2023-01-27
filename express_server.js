@@ -4,6 +4,8 @@ const PORT = 8080; // default port 8080
 
 const cookieParser = require('cookie-parser')
 
+const bcrypt = require("bcryptjs");
+
 app.set("view engine", "ejs") // set the structure 
 
 
@@ -153,9 +155,16 @@ app.post("/urls/:id/delete", (req, res) => {
   let userId = req.cookies.user_id
   let urls = urlsForUser(userId)
   
-  if (!urls[id]) {
-    return res.send('<h1>cannot delete other ppl url</h1>')
+  if (!urlDatabase[id]) {
+    return res.send('<h1>no such id to delete</h1>')
+  }
+  if (!userId) {
+    return  res.send('<h1>please log in first to delete</h1>')
   } 
+  
+  if (!urls[id]){
+    return  res.send('<h1>not your short ID, cannot delete </h1>')
+  }
 
   delete urlDatabase[id]
   res.redirect("/urls")
@@ -198,7 +207,7 @@ app.post("/login", (req, res) => {
   } */
   console.log('email id password',email,id,password)
 
-   if(!users[id]||users[id].password!== password) {
+   if(!users[id]||!bcrypt.compareSync(password, users[id].password)) {
       return res.status(400).send("either email or password not correct")
     } else {
       res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
@@ -248,7 +257,7 @@ app.post("/register", (req, res) => {
   users[id] = {
     id: id,
     email: email,
-    password: password,
+    password: bcrypt.hashSync(password, 10)
   }
 
   console.log("users",users)
