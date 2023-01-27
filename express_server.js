@@ -2,15 +2,25 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-const cookieParser = require('cookie-parser')
+/* const cookieParser = require('cookie-parser') */
+const cookieSession = require('cookie-session')//replace cookie parser
+//to use this package
 
 const bcrypt = require("bcryptjs");
 
 app.set("view engine", "ejs") // set the structure 
 
 
-app.use(express.urlencoded({ extended: true })); //body parser for post requst
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); //body parser for post request
+
+/* app.use(cookieParser()); */
+app.use(cookieSession({ //replace cookie parser
+  name: 'session',
+  keys: ['super'/* secret keys */],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // millisecond 为单位，24 hours过期
+}))
 
 const generateRandomString = () => {
   let randomStr = "";
@@ -35,7 +45,7 @@ const urlsForUser = (id) => {
 }
 
 //return username by given email.
-const getUserByEmail = (email) => {
+const getUserByEmail = (email, users) => {
   let userId = "";
   for (let user in users) {
     if (users[user].email === email) {
@@ -51,7 +61,7 @@ app.get("/urls.json",(req, res) => {
 
 
 app.get("/urls",(req, res) => {
-  const id = req.cookies.user_id
+  const id = req.session.user_id
   let urls = urlsForUser(id)
   const templateVars = {
     urls: urls,
@@ -68,9 +78,9 @@ app.get("/urls",(req, res) => {
 //new
 app.get("/urls/new",(req, res) => {
   const templateVars = {
-    username: users[req.cookies.user_id]
+    username: users[req.session.user_id]
   }
-  if (!req.cookies.user_id){
+  if (!req.session.user_id){
     res.redirect("/login")
   } else {
   res.render("urls_new", templateVars);
@@ -79,7 +89,7 @@ app.get("/urls/new",(req, res) => {
 
 app.post("/urls", (req, res) => {
   
-  if (!req.cookies.user_id){
+  if (!req.session.user_id){
     res.status(401).send('<h1><center>Please login to use ShortURL!</center></h1>');
   } //如果没有这条code，别人可以用
   //（curl -X POST -d "longURL=http://www.lighthouselabs.com" localhost:8080/urls）
@@ -88,7 +98,7 @@ app.post("/urls", (req, res) => {
     let id = generateRandomString();
     urlDatabase[id] = {
       longURL : req.body['longURL'],
-      userID : req.cookies.user_id
+      userID : req.session.user_id
     }
     console.log('urldatabase',urlDatabase)
   res.redirect(`/urls/${id}`)
@@ -104,7 +114,7 @@ app.post("/urls", (req, res) => {
 //new
 
 app.get("/urls/:id",(req, res) => {
-  let userId = req.cookies.user_id;
+  let userId = req.session.user_id;
   let id = req.params.id;
   let urls = urlsForUser(userId);
   if (!userId && !urlDatabase[id]) {
@@ -119,7 +129,7 @@ app.get("/urls/:id",(req, res) => {
   const templateVars = { 
     id: id, 
     longURL: urlDatabase[id].longURL,
-    username: users[req.cookies.user_id]
+    username: users[req.session.user_id]
   };
   res.render("urls_show", templateVars); 
 })//like /urls/b2xVn2 in the browser. 
@@ -152,7 +162,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
 
   const id = req.params.id;
-  let userId = req.cookies.user_id
+  let userId = req.session.user_id
   let urls = urlsForUser(userId)
   
   if (!urlDatabase[id]) {
@@ -177,7 +187,7 @@ app.post("/urls/:id/delete", (req, res) => {
 //edit
 app.post("/urls/:id/edit", (req, res) => {
   let id = req.params.id
-  let userId = req.cookies.user_id
+  let userId = req.session.user_id
   let urls = urlsForUser(userId)
   
   if (!urls[id]) {
@@ -189,9 +199,9 @@ app.post("/urls/:id/edit", (req, res) => {
 //login
 app.get("/login", (req, res) => {
   const templateVars = {
-    username: users[req.cookies.user_id]
+    username: users[req.session.user_id]
   }
-  if (req.cookies.user_id){
+  if (req.session.user_id){
     res.redirect("/urls")
   } else {
     res.render('urls_login', templateVars)
@@ -200,7 +210,7 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   let email = req.body.email;
-  let id = getUserByEmail(email);
+  let id = getUserByEmail(email, users);
   let password = req.body.password;
  /*  if (!email||!password) {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
@@ -210,7 +220,7 @@ app.post("/login", (req, res) => {
    if(!users[id]||!bcrypt.compareSync(password, users[id].password)) {
       return res.status(400).send("either email or password not correct")
     } else {
-      res.cookie("user_id", id) //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
+      req.session.user_id = id //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
       //或者直接传id object到cookie也行， 但是其他get端要改成直接提取cookie信息就行。
     res.redirect("/urls")
   }
@@ -219,7 +229,8 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id"); // clear cookie
+  /* res.clearCookie("user_id");  */// clear cookie
+  req.session = null // deletes the cookies
   res.redirect('/login')
 })
 
@@ -229,9 +240,9 @@ app.post("/logout", (req, res) => {
 app.get("/register", (req, res) => {
   
   const templateVars = {
-    username: users[req.cookies.user_id]
+    username: users[req.session.user_id]
   }
-  if (req.cookies.user_id){
+  if (req.session.user_id){
     res.redirect('/urls')
     /* res.render("urls_register", templateVars) */
   } else {
@@ -250,7 +261,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
   }
 
-   if(users[getUserByEmail(email)]) {
+   if(users[getUserByEmail(email, users)]) {
       return res.status(400).send(`${email} already registered`)
   }
 
