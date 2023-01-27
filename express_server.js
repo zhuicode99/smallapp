@@ -7,6 +7,13 @@ const cookieSession = require('cookie-session')//replace cookie parser
 //to use this package
 
 const bcrypt = require("bcryptjs");
+const { getUserByEmail } = require("./helpers");
+
+const {
+  getUserByEmail,
+} = require("./helpers")
+
+
 
 app.set("view engine", "ejs") // set the structure 
 
@@ -44,16 +51,6 @@ const urlsForUser = (id) => {
   return newUrlDatabase;
 }
 
-//return username by given email.
-const getUserByEmail = (email, users) => {
-  let userId = "";
-  for (let user in users) {
-    if (users[user].email === email) {
-      userId = user;
-    } 
-  }
-  return userId;
-}
 
 app.get("/urls.json",(req, res) => {
    res.json(urlDatabase);
