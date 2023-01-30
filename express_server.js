@@ -7,10 +7,14 @@ const cookieSession = require('cookie-session')//replace cookie parser
 //to use this package
 
 const bcrypt = require("bcryptjs");
-const { getUserByEmail } = require("./helpers");
 
 const {
   getUserByEmail,
+  generateRandomString,
+  urlsForUser,
+  urlDatabase,
+  users,
+
 } = require("./helpers")
 
 
@@ -24,32 +28,9 @@ app.use(express.urlencoded({ extended: true })); //body parser for post request
 app.use(cookieSession({ //replace cookie parser
   name: 'session',
   keys: ['super'/* secret keys */],
-
-  // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // millisecond 为单位，24 hours过期
 }))
 
-const generateRandomString = () => {
-  let randomStr = "";
-  let calc = (Math.random()).toString(36).substring(2, 8);
-  randomStr += calc;
-  return randomStr;
-};
-
-const urlDatabase = {};
-const users = {};
-
-const urlsForUser = (id) => {
-  const newUrlDatabase = {};
-  const keys = Object.keys(urlDatabase);
-  for (let key of keys) {
-    const urls = urlDatabase[key]
-    if (urls.userID === id){
-      newUrlDatabase[key] = urls
-    } 
-  }
-  return newUrlDatabase;
-}
 
 
 app.get("/urls.json",(req, res) => {
@@ -64,7 +45,6 @@ app.get("/urls",(req, res) => {
     urls: urls,
     username: users[id]
   }
-  console.log("newurldatabaseforeachuser",urls)
   if (!id) {
     res.send("Please log in first <a href='/login'>Try Login!</a>");
   } else {
@@ -85,7 +65,6 @@ app.get("/urls/new",(req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  
   if (!req.session.user_id){
     res.status(401).send('<h1><center>Please login to use ShortURL!</center></h1>');
   } //如果没有这条code，别人可以用
@@ -98,7 +77,7 @@ app.post("/urls", (req, res) => {
       userID : req.session.user_id
     }
     console.log('urldatabase',urlDatabase)
-  res.redirect(`/urls/${id}`)
+  res.redirect(`/urls/${id}`) //should redirect to /urls, make more sense
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
 //所以会post（create）把数据送到/urls页面，在这个end point来action，
@@ -131,6 +110,8 @@ app.get("/urls/:id",(req, res) => {
   res.render("urls_show", templateVars); 
 })//like /urls/b2xVn2 in the browser. 
 //Further, the value of req.params.id would be b2xVn2.
+
+
 app.post("/urls/:id", (req, res) => {
   let id = req.params.id
   urlDatabase[id]['longURL'] = req.body['longURL'];
@@ -212,7 +193,6 @@ app.post("/login", (req, res) => {
  /*  if (!email||!password) {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
   } */
-  console.log('email id password',email,id,password)
 
    if(!users[id]||!bcrypt.compareSync(password, users[id].password)) {
       return res.status(400).send("either email or password not correct")
@@ -248,8 +228,6 @@ app.get("/register", (req, res) => {
 });
 
 
-
-
 app.post("/register", (req, res) => {
   let id = generateRandomString();
   let email = req.body.email;
@@ -258,7 +236,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Sorry! Your entry is either empty or invalid.')
   }
 
-   if(users[getUserByEmail(email, users)]) {
+  if(users[getUserByEmail(email, users)]) {
       return res.status(400).send(`${email} already registered`)
   }
 
