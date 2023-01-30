@@ -79,7 +79,7 @@ app.post("/urls", (req, res) => {
       userID : req.session.user_id
     }
     console.log('urldatabase',urlDatabase)
-  res.redirect(`/urls/${id}`) //should redirect to /urls, make more sense
+  res.redirect(`/urls`) 
 });
 //从urls—new.ejs 里面的form输入long-url后点submit，由于form的action是/urls
 //所以会post（create）把数据送到/urls页面，在这个end point来action，
@@ -192,9 +192,6 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let id = getUserByEmail(email, users);
   let password = req.body.password;
- /*  if (!email||!password) {
-    return res.status(400).send('Sorry! Your entry is either empty or invalid.')
-  } */
 
    if(!users[id]||!bcrypt.compareSync(password, users[id].password)) {
       return res.status(400).send("either email or password not correct")
@@ -252,17 +249,6 @@ app.post("/register", (req, res) => {
 /*   res.cookie("user_id", id) */
   res.redirect("/login")
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 
