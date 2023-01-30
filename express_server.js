@@ -8,15 +8,7 @@ const cookieSession = require('cookie-session')//replace cookie parser
 
 const bcrypt = require("bcryptjs");
 
-const {
-  getUserByEmail,
-  generateRandomString,
-  urlsForUser,
-  urlDatabase,
-  users,
-
-} = require("./helpers")
-
+const methodOverride = require("method-override");
 
 
 app.set("view engine", "ejs") // set the structure 
@@ -31,6 +23,16 @@ app.use(cookieSession({ //replace cookie parser
   maxAge: 24 * 60 * 60 * 1000 // millisecond 为单位，24 hours过期
 }))
 
+app.use(methodOverride('_method'))
+
+const {
+  getUserByEmail,
+  generateRandomString,
+  urlsForUser,
+  urlDatabase,
+  users,
+
+} = require("./helpers")
 
 
 app.get("/urls.json",(req, res) => {
@@ -137,7 +139,7 @@ app.get("/u/:id", (req, res) => {
 
 
 //delete
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
 
   const id = req.params.id;
   let userId = req.session.user_id
@@ -163,7 +165,7 @@ app.post("/urls/:id/delete", (req, res) => {
 //因为没有数据要传输，所以跟上边的例子不一样
 
 //edit
-app.post("/urls/:id/edit", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   let id = req.params.id
   let userId = req.session.user_id
   let urls = urlsForUser(userId)
