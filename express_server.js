@@ -11,6 +11,9 @@ const bcrypt = require("bcryptjs");
 const methodOverride = require("method-override");
 
 
+
+
+
 app.set("view engine", "ejs") // set the structure 
 
 
@@ -34,9 +37,14 @@ const {
 
 } = require("./helpers")
 
+app.get("/", (req, res) => {
+  res.send('<html><p>Welcome to Small App!<span><a href="/urls">  Enter</a></span></p></html>');
+});
+
+
 
 app.get("/urls.json",(req, res) => {
-   res.json(urlDatabase);
+  res.json(urlDatabase);
 });
 
 
@@ -194,7 +202,8 @@ app.post("/login", (req, res) => {
   let password = req.body.password;
 
    if(!users[id]||!bcrypt.compareSync(password, users[id].password)) {
-      return res.status(400).send("either email or password not correct")
+      return res.status(400)
+      .send('<html><p>Either your email or password is not correct! <span><a href="/login">Try Again</a></span></p></html>')
     } else {
       req.session.user_id = id //只需要传id到cookie就行，因为其他get端是用这个id来提取信息
       //或者直接传id object到cookie也行， 但是其他get端要改成直接提取cookie信息就行。
